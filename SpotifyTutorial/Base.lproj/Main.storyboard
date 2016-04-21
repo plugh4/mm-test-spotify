@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6211" systemVersion="14A298i" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6204"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -15,11 +17,103 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6dU-aN-EQG">
+                                <rect key="frame" x="220" y="285" width="160" height="30"/>
+                                <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="160" id="puE-Yw-p6I"/>
+                                </constraints>
+                                <state key="normal" title="Sign in with Spotify">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="loginButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gPK-zZ-Vep"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.1764705882" green="0.1843137255" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="6dU-aN-EQG" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="0ru-5K-Xgo"/>
+                            <constraint firstItem="6dU-aN-EQG" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="xmL-Ph-CIh"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <segue destination="Qhl-tf-T3D" kind="show" identifier="songVC" id="Nj0-nq-IcP"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+        </scene>
+        <!--Song View Controller-->
+        <scene sceneID="vLL-IW-1Gb">
+            <objects>
+                <viewController id="Qhl-tf-T3D" customClass="SongViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="AQt-ru-9Rc"/>
+                        <viewControllerLayoutGuide type="bottom" id="Sn8-hB-wfA"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="9Mc-Ox-vbi">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalCentering" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="t5r-83-vJz">
+                                <rect key="frame" x="20" y="20" width="560" height="580"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pZe-qI-OEK">
+                                        <rect key="frame" x="222" y="0.0" width="116" height="48"/>
+                                        <color key="backgroundColor" red="0.84060045809999995" green="0.84060045809999995" blue="0.84060045809999995" alpha="1" colorSpace="calibratedRGB"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                        <state key="normal" title="Push me"/>
+                                        <connections>
+                                            <action selector="onPlay1Pressed:" destination="Qhl-tf-T3D" eventType="touchUpInside" id="KU7-ZT-ale"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cDz-YC-TVY">
+                                        <rect key="frame" x="259" y="170" width="42" height="63"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="42"/>
+                                        <state key="normal" title="⏸"/>
+                                        <connections>
+                                            <action selector="onPause1Pressed:" destination="Qhl-tf-T3D" eventType="touchUpInside" id="d5m-tD-cfd"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" misplaced="YES" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1hc-ha-KRV">
+                                        <rect key="frame" x="259" y="347" width="42" height="63"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="42"/>
+                                        <state key="normal" title="⏩"/>
+                                        <connections>
+                                            <action selector="onSkip2Pressed:" destination="Qhl-tf-T3D" eventType="touchUpInside" id="CQe-nc-aus"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sUr-xg-Qlb">
+                                        <rect key="frame" x="243" y="532" width="75" height="48"/>
+                                        <color key="backgroundColor" white="0.89682081940000002" alpha="1" colorSpace="calibratedWhite"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                        <state key="normal" title="Fetch"/>
+                                        <connections>
+                                            <action selector="onFetchPressed:" destination="Qhl-tf-T3D" eventType="touchUpInside" id="54P-9r-Fsx"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="t5r-83-vJz" firstAttribute="leading" secondItem="9Mc-Ox-vbi" secondAttribute="leadingMargin" id="dtV-Gg-p0W"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="t5r-83-vJz" secondAttribute="trailing" id="ktP-zZ-xJj"/>
+                            <constraint firstItem="Sn8-hB-wfA" firstAttribute="top" secondItem="t5r-83-vJz" secondAttribute="bottom" id="mWX-do-6fe"/>
+                            <constraint firstItem="t5r-83-vJz" firstAttribute="top" secondItem="AQt-ru-9Rc" secondAttribute="bottom" id="rXH-RA-xws"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="pauseButton" destination="cDz-YC-TVY" id="8fP-82-6Oh"/>
+                        <outlet property="skipButton" destination="1hc-ha-KRV" id="hjI-IT-u7s"/>
+                        <outlet property="startButton" destination="pZe-qI-OEK" id="bfL-8h-YG1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="lGc-PH-nFB" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1409" y="342"/>
         </scene>
     </scenes>
 </document>
