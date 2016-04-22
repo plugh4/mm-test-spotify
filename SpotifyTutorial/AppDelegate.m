@@ -49,5 +49,49 @@
     return NO;
 }
 
+
+#pragma mark - Lock Screen
+- (void) remoteControlReceivedWithEvent: (UIEvent *) receivedEvent {
+
+    //[MusicManager pauseResume];
+    //[MusicManager skipForward];
     
+    if (receivedEvent.type == UIEventTypeRemoteControl) {
+        //NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+        //NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), receivedEvent);
+        switch (receivedEvent.subtype) {
+                
+            case UIEventSubtypeRemoteControlPlay:
+                NSLog(@"[%@ %@] Play", self.class, NSStringFromSelector(_cmd));
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteControlTogglePlayPause" object:self];
+                break;
+            case UIEventSubtypeRemoteControlPause:
+                NSLog(@"[%@ %@] Pause", self.class, NSStringFromSelector(_cmd));
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteControlTogglePlayPause" object:self];
+                break;
+            case UIEventSubtypeRemoteControlTogglePlayPause:
+                NSLog(@"[%@ %@] TogglePlayPause", self.class, NSStringFromSelector(_cmd));
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteControlTogglePlayPause" object:self];
+                break;
+                
+                //TODO: pause takes us out of the lock scree
+                
+            case UIEventSubtypeRemoteControlPreviousTrack:
+                NSLog(@"[%@ %@] PreviousTrack", self.class, NSStringFromSelector(_cmd));
+                //[[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteControlPreviousTrack" object:self];
+                break;
+                
+            case UIEventSubtypeRemoteControlNextTrack:
+                NSLog(@"[%@ %@] NextTrack", self.class, NSStringFromSelector(_cmd));
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"RemoteControlNextTrack" object:self];
+                break;
+
+            case UIEventSubtypeRemoteControlStop:
+                NSLog(@"[%@ %@] Stop", self.class, NSStringFromSelector(_cmd)); break;
+
+            default:
+                break;
+        }
+    }
+}
 @end

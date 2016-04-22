@@ -31,6 +31,12 @@
     self.headliners = @[@"CHVRCHES", @"Wolf Alice", @"DeerHunter", @"Savages", @"Jon McLaughlin", @"GirlPool", @"Heather Nova", @"Fat White Family", @"Alejandro Escovedo", @"Hælos", @"There's Talk"];
     self.openers = @[@"Ian", @"Smokin Ziggurats", @"Bitchin Bajas", @"Bob Doran", @"Parachute", @"The French Vanilla", @"Try the Pie"];
     //[self getArtistSpotifyID];
+    
+    // lock screen
+    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+    [self becomeFirstResponder];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pauseResumeSong) name:@"RemoteControlTogglePlayPause" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(skipSong) name:@"RemoteControlNextTrack" object:nil];
 }
 -(void)initSpotify {
     NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
@@ -38,8 +44,8 @@
     self.session = [SPTAuth defaultInstance].session;
     self.player = [[SPTAudioStreamingController alloc] initWithClientId:[SPTAuth defaultInstance].clientID];
     
-    // player.delegate is for <SPTAudioStreamingDelegate>
-    // player.playbackDelegate is for <SPTAudioStreamPlaybackDelegate>
+    // delegate         => <SPTAudioStreamingDelegate>
+    // playbackDelegate => <SPTAudioStreamPlaybackDelegate>
     self.player.delegate = self;
     self.player.playbackDelegate = self;
 
@@ -50,33 +56,52 @@
 }
 
 
+#pragma mark - Lock Screen 
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
+}
+
+
 #pragma mark - Play Song
+NSURL *urify(NSString *trackID) {
+    //NSString *canonicalName = [NSString stringWithFormat:@"spotify:track:%@", trackID];
+    return [NSURL URLWithString:trackID];
+}
 
 -(void)playSong {
     NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
     
-    NSString *track1 = @"spotify:track:1li0jGGRIaMaNNRBV8JXZ4"; // it's the final countdownnnnnnnn
-    NSURL *trackURI = [NSURL URLWithString:track1];
-
-    NSString *track2 = @"spotify:track:2HHtWyy5CgaQbC7XSoOb0e";
-    NSURL *trackURI2 = [NSURL URLWithString:track2];
-
-    NSString *track3 = @"spotify:track:5GnhAFE3KwluAECpx9Csw7";
-//    NSString *track3 = @"spotify:track:673Adebta6FzZsMGLbCmRL";
-    NSURL *trackURI3 = [NSURL URLWithString:track3];
-
-    NSString *track4 = @"spotify:track:5fA73CY02uyQko1uPRmO2e";
-    NSURL *trackURI4 = [NSURL URLWithString:track4];
+    NSString *track1 = @"spotify:track:1li0jGGRIaMaNNRBV8JXZ4"; // Final Countdownnnnnnnn
+    NSString *track2 = @"spotify:track:2HHtWyy5CgaQbC7XSoOb0e"; // Eye of the Tiger
+    NSString *track3 = @"spotify:track:5GnhAFE3KwluAECpx9Csw7"; // 13 Variations
+    NSString *track4 = @"spotify:track:5fA73CY02uyQko1uPRmO2e"; // Rage
+    NSString *track5 = @"spotify:track:4vvOv6MDFFPpEb1gwwb2ZD"; // Baby Got Back
     
-    [self.player playURIs:@[ trackURI, trackURI2, trackURI3, trackURI4 ] fromIndex:0 callback:^(NSError *error) {
+    NSArray *playlist = @[
+        urify(track1),
+        urify(track5),
+        urify(track2),
+        urify(track3),
+        urify(track4)
+    ];
+    
+    //[self.player playURIs:@[ trackURI, trackURI2, trackURI3, trackURI4 ] fromIndex:0 callback:^(NSError *error) {
+    [self.player playURIs:playlist fromIndex:0 callback:^(NSError *error) {
         if (error) {
             NSLog(@"*** Playback error: %@", error);
             return;
         }
         NSLog(@"playURIs callback");
         
-        [self performSelector:@selector(seekTo:) withObject:[NSNumber numberWithDouble:13.0] afterDelay:1.0];
-        
+        if ([((NSURL *)playlist[0]).absoluteString containsString:@"1li0jGGRIaMaNNRBV8JXZ4"]) {
+            // Final Countdown 0:13
+            [self performSelector:@selector(seekTo:) withObject:[NSNumber numberWithDouble:13.0] afterDelay:1.0];
+        } else if ([((NSURL *)playlist[0]).absoluteString containsString:@"4vvOv6MDFFPpEb1gwwb2ZD"]) {
+            // Baby Got Back 0:31.5
+            [self performSelector:@selector(seekTo:) withObject:[NSNumber numberWithDouble:31.5] afterDelay:6.5];
+        }
+
         self.pauseButton.enabled = YES;
         self.skipButton.enabled = YES;
     }];
@@ -117,84 +142,139 @@
     [self.player stop:^(NSError *error) {
         if (error) { NSLog(@">>> error stopping playback"); }
     }];
-    // stop() - stops playback and wipes the entire playlist (no resume)
+    // stop() - stops playback and wipes the entire playlist (sans resume)
     // use setIsPlaying() instead
 }
 
 
-#pragma mark - SPTAudioStreamingDelegate
+#pragma mark - Spotify streaming "delegate"
 - (void)audioStreamingDidLogin:(SPTAudioStreamingController *)audioStreaming {
-    NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
+}
+-(void)audioStreamingDidLogout:(SPTAudioStreamingController *)audioStreaming {
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
+}
+- (void)audioStreamingDidEncounterTemporaryConnectionError:(SPTAudioStreamingController *)audioStreaming {
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
+}
+-(void)audioStreaming:(SPTAudioStreamingController *)audioStreaming didEncounterError:(NSError *)error {
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
+}
+-(void)audioStreaming:(SPTAudioStreamingController *)audioStreaming didReceiveMessage:(NSString *)message {
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
+}
+-(void)audioStreamingDidDisconnect:(SPTAudioStreamingController *)audioStreaming {
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
+}
+-(void)audioStreamingDidReconnect:(SPTAudioStreamingController *)audioStreaming {
+    NSLog(@"[%@ delegate.%@]", self.class, NSStringFromSelector(_cmd));
 }
 
 
-#pragma mark - Playback delegates
+#pragma mark - Spotify streaming "playbackDelegate"
 - (void)audioStreaming:(SPTAudioStreamingController *)audioStreaming didChangePlaybackStatus:(BOOL)isPlaying {
-    NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), (isPlaying) ? (@"play") : (@"stop"));
+    NSLog(@"[%@ playbackDelegate.%@] %@", self.class, NSStringFromSelector(_cmd), (isPlaying) ? (@"play") : (@"stop"));
 }
 - (void)audioStreamingDidPopQueue:(SPTAudioStreamingController *)audioStreaming {
-    NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSLog(@"[%@ playbackDelegate.%@]", self.class, NSStringFromSelector(_cmd));
 }
 -(void)audioStreaming:(SPTAudioStreamingController *)audioStreaming didFailToPlayTrack:(NSURL *)trackUri {
-    NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSLog(@"[%@ playbackDelegate.%@]", self.class, NSStringFromSelector(_cmd));
     //NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), trackUri.absoluteString);
 }
 -(void)audioStreaming:(SPTAudioStreamingController *)audioStreaming didStartPlayingTrack:(NSURL *)trackUri {
-    NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSLog(@"[%@ playbackDelegate.%@]", self.class, NSStringFromSelector(_cmd));
     //NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), trackUri.absoluteString);
 }
 - (void)audioStreaming:(SPTAudioStreamingController *)audioStreaming didStopPlayingTrack:(NSURL *)trackUri {
-    NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSLog(@"[%@ playbackDelegate.%@]", self.class, NSStringFromSelector(_cmd));
     //NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), trackUri.absoluteString);
 }
 
 
-#pragma mark - Artist/Top Songs
-
--(void)getArtistSpotifyID {
-    NSString *accessToken = self.session.accessToken;
+-(void)testArtistData {
     for (NSString *artist in self.headliners) {
-        [SPTSearch performSearchWithQuery:artist queryType:SPTQueryTypeArtist accessToken:accessToken callback:^(NSError *error, id object) {
-            if (error != nil) {
-                NSLog(@"Error while getting artist id: %@", error.localizedDescription);
-            }
-            
-            SPTListPage *listPage = object;
-            SPTPartialArtist *artist = listPage.items.firstObject;
-            
-            [self getFullArtist:artist];
-//            if ([SPTArtist isArtistURI:artist.uri]) {
-//                NSLog(@"Success");
-//            } else {
-//                NSLog(@"Fuck me, right?");
-//            }
-        }];
+        [self fetchArtist:artist];
     }
 }
 
--(void)getFullArtist:(SPTPartialArtist *)partialArtist {
+#pragma mark - Artist/Top Songs
+-(void)fetchArtist2:(NSString *)artist {
+    NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSString *accessToken = self.session.accessToken;
+    [SPTSearch performSearchWithQuery:artist queryType:SPTQueryTypeArtist accessToken:accessToken callback:^(NSError *error, id object) {
+        if (error) { NSLog(@"ArtistQuery error - %@", error.localizedDescription); }
+        SPTListPage *listPage = object;
+        SPTPartialArtist *artist = listPage.items.firstObject;
+        [self fetchFullArtistFromPartial2:artist];
+    }];
+}
+-(void)fetchFullArtistFromPartial2:(SPTPartialArtist *)partialArtist {
     NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
     [SPTArtist artistWithURI:partialArtist.uri session:self.session callback:^(NSError *error, id object) {
-        NSLog(@"[%@ %@] artistWithURI callback", self.class, NSStringFromSelector(_cmd));
+        if (error) { NSLog(@"[%@ %@] =>artistWithURI", self.class, NSStringFromSelector(_cmd)); }
         SPTArtist *fullArtist = object;
-        [self getTopSongsForArtist:fullArtist];
-        
+        // do something with fullArtist
+        [self getTopSongsForArtist2:fullArtist];
+    }];
+}
+-(void)getTopSongsForArtist2:(SPTArtist *)artist {
+    NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), artist);
+    SPTSession *session = [SPTAuth defaultInstance].session;
+    [artist requestTopTracksForTerritory:@"us" withSession:session callback:^(NSError *error, id object) {
+        NSLog(@"[%@ %@] %@ =>callback", self.class, NSStringFromSelector(_cmd), artist);
+        NSArray *tracks = object;
+        for (SPTTrack *track in tracks) {
+            NSLog(@"   track=%0.1lf %@", track.popularity, track);
+        }
     }];
 }
 
--(void)getTopSongsForArtist:(SPTArtist *)artist {
+
+-(void)fetchArtist:(NSString *)artist {
     NSLog(@"[%@ %@]", self.class, NSStringFromSelector(_cmd));
+    NSString *accessToken = self.session.accessToken;
+
+    // get partialArtist (text search)
+    [SPTSearch performSearchWithQuery:artist queryType:SPTQueryTypeArtist accessToken:accessToken callback:^(NSError *error, id object) {
+        if (error) { NSLog(@"ArtistQuery error - %@", error.localizedDescription); }
+        SPTListPage *listPage = object;
+        SPTPartialArtist *partialArtist = listPage.items.firstObject;
+        NSLog(@"[%@ %@] =>performSearchWithQuery", self.class, NSStringFromSelector(_cmd));
+        NSLog(@"   name=%@", partialArtist.name);
+        NSLog(@"   uri =%@", partialArtist.uri.absoluteString);
+
+        // get fullArtist from partialArtist
+        [SPTArtist artistWithURI:partialArtist.uri session:self.session callback:^(NSError *error, id object) {
+            if (error) { NSLog(@"[%@ %@] =>artistWithURI", self.class, NSStringFromSelector(_cmd)); }
+            SPTArtist *fullArtist = object;
+            // do something with fullArtist
+            NSLog(@"[%@ %@] =>artistWithURI", self.class, NSStringFromSelector(_cmd));
+            for (NSString *genre in fullArtist.genres) {
+                NSLog(@"   name=%@", partialArtist.name);
+                NSLog(@"   genre=%@", genre);
+            }
+
+            [self getTopSongsForArtist:fullArtist];
+        }];
+    }];
+}
+-(void)getTopSongsForArtist:(SPTArtist *)artist {
+    NSLog(@"[%@ %@] %@", self.class, NSStringFromSelector(_cmd), artist);
     SPTSession *session = [SPTAuth defaultInstance].session;
     [artist requestTopTracksForTerritory:@"us" withSession:session callback:^(NSError *error, id object) {
-        NSLog(@"[%@ %@] requestTopTracksForTerritory callback", self.class, NSStringFromSelector(_cmd));
+
+        // >>> topTracks
+        
+        NSLog(@"[%@ %@] %@ =>callback", self.class, NSStringFromSelector(_cmd), artist);
         NSArray *tracks = object;
         for (SPTTrack *track in tracks) {
-            NSLog(@"   track=%@", track);
-            NSLog(@"   track=%@", track);
+            NSLog(@"   track=%0.1lf %@", track.popularity, track);
         }
     }];
-    
 }
+
+
 
 
 
@@ -234,7 +314,7 @@
     }];
 }
 - (IBAction)onFetchPressed:(UIButton *)sender {
-    [self getArtistSpotifyID];
+    [self testArtistData];
 }
 
 

@@ -47,8 +47,8 @@
     NSString *scopes = [NSString stringWithFormat:@"%@", SPTAuthStreamingScope];
     NSString *responseType = @"token";
     NSString *authURLStr = [NSString stringWithFormat:@"https://accounts.spotify.com/authorize/?client_id=%@&response_type=%@&redirect_uri=%@&scope=%@", clientID, responseType, redirectURI, scopes];
-    NSURL *loginURL = [NSURL URLWithString:authURLStr];
     NSLog(@"auth url >%@<", authURLStr);
+    NSURL *loginURL = [NSURL URLWithString:authURLStr];
 
     self.svc = [[SFSafariViewController alloc] initWithURL:loginURL];
     
